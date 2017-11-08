@@ -14,10 +14,23 @@
 ## 爬虫小总结
 
 ### 最基本的抓站
+* Get方法
 ```
 import urllib2
-content = urllib2.urlopen('http://XXXX').read()
+url = "http://www.baidu.com"
+response = urllib2.urlopen(url)
+print response.read()
 ```
+* Post方法
+import urllib
+import urllib2
+
+url = "http://abcde.com"
+form = {'name':'abc','password':'1234'}
+form_data = urllib.urlencode(form)
+request = urllib2.Request(url,form_data)
+response = urllib2.urlopen(request)
+print response.read()
 ## 使用代理服务器
 这在某些情况下比较有用，比如IP被封了，或者比如IP访问的次数受到限制等等。 
 ```
@@ -30,12 +43,20 @@ content = urllib2.urlopen('http://XXXX').read()
 ### 需要登录的情况
 登录的情况比较麻烦我把问题拆分一下： 
 * cookie的处理
+cookies是某些网站为了辨别用户身份、进行session跟踪而储存在用户本地终端上的数据(通常经过加密)，python提供了cookielib模块用于处理cookies，cookielib模块的主要作用是提供可存储cookie的对象，以便于与urllib2模块配合使用来访问Internet资源.
 ```
 import urllib2, cookielib
 cookie_support= urllib2.HTTPCookieProcessor(cookielib.CookieJar())
 opener = urllib2.build_opener(cookie_support, urllib2.HTTPHandler)
 urllib2.install_opener(opener)
 content = urllib2.urlopen('http://XXXX').read()
+```
+关键在于CookieJar()，它用于管理HTTP cookie值、存储HTTP请求生成的cookie、向传出的HTTP请求添加cookie的对象。整个cookie都存储在内存中，对CookieJar实例进行垃圾回收后cookie也将丢失，所有过程都不需要单独去操作。
+
+ 手动添加cookie
+```
+cookie = "PHPSESSID=91rurfqm2329bopnosfu4fvmu7; kmsign=55d2c12c9b1e3; KMUID=b6Ejc1XSwPq9o756AxnBAg="
+request.add_header("Cookie", cookie)
 ```
 是的没错，如果想同时用代理和cookie，那就加入proxy_support然后operner改为 
 ```
@@ -72,16 +93,24 @@ req = urllib2.Request(
 result = urllib2.urlopen(req).read()
 ```
 * 伪装成浏览器访问
-某些网站反感爬虫的到访，于是对爬虫一律拒绝请求。这时候我们需要伪装成浏览器，这可以通过修改http包中的header来实现： 
+某些网站反感爬虫的到访，于是对爬虫一律拒绝请求。这时候我们需要伪装成浏览器. 对有些 header 要特别留意，Server 端会针对这些 header 做检查
+
+  1.User-Agent 有些 Server 或 Proxy 会检查该值，用来判断是否是浏览器发起的 Request
+
+  2.Content-Type 在使用 REST 接口时，Server 会检查该值，用来确定 HTTP Body 中的内容该怎样解析。
+
+这时可以通过修改http包中的header来实现，代码片段如下：
 ```
+import urllib2
+
 headers = {
     'User-Agent':'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'
 }
-req = urllib2.Request(
-    url = 'http://secure.verycd.com/signin/*/http://www.verycd.com/',
-    data = postdata,
+request = urllib2.Request(
+    url = 'http://my.oschina.net/jhao104/blog?catalog=3463517',
     headers = headers
 )
+print urllib2.urlopen(request).read()
 ```
 * 反”反盗链”
 某些站点有所谓的反盗链设置，其实说穿了很简单，就是检查你发送请求的header里面，referer站点是不是他自己，所以我们只需要像3.3一样，把headers的referer改成该网站即可，以黑幕著称地cnbeta为例： 
@@ -90,9 +119,24 @@ headers = {
     'Referer':'http://www.cnbeta.com/articles'
 }
 ```
-headers是一个dict数据结构，你可以放入任何想要的header，来做一些伪装。例如，有些网站总喜欢窥人隐私，别人通过代理访问，他偏偏要读取header中的X-Forwarded-For来看看人家的真实IP，没话说，那就直接把X-Forwarde-For改了吧，可以改成随便什么好玩的东东来欺负欺负他.
+headers是一个dict数据结构，你可以放入任何想要的header，来做一些伪装。例如，有些网站总喜欢窥人隐私，别人通过代理访问，他偏偏要读取header中的X-Forwarded-For来看看人家的真实IP，没话说，那就直接把X-Forwarde-For改了吧。
 * 终极绝招
-有时候即使做了3.1-3.4，访问还是会被据，那么没办法，老老实实把httpfox中看到的headers全都写上，那一般也就行了。 再不行，那就只能用终极绝招了，selenium直接控制浏览器来进行访问，只要浏览器可以做到的，那么它也可以做到。类似的还有pamie，watir，等等等等。 
+有时候即使做了上面访问还是会被据，那么没办法，老老实实把httpfox中看到的headers全都写上，那一般也就行了。 再不行，那就只能用终极绝招了，selenium直接控制浏览器来进行访问，只要浏览器可以做到的，那么它也可以做到。类似的还有pamie，watir，等等等等。 
+
+### 页面解析
+   对于页面解析最强大的当然是正则表达式，这个对于不同网站不同的使用者都不一样，就不用过多的说明，附两个比较好的网址：
+
+正则表达式入门：http://www.cnblogs.com/huxi/archive/2010/07/04/1771073.html 
+
+正则表达式在线测试：http://tool.oschina.net/regex/ 
+
+其次就是解析库了，常用的有两个lxml和BeautifulSoup，对于这两个的使用介绍两个比较好的网站：
+
+lxml：http://my.oschina.net/jhao104/blog/639448 
+
+BeautifulSoup：http://cuiqingcai.com/1319.html 
+
+对于这两个库，都是HTML/XML的处理库，Beautifulsoup纯python实现，效率低，但是功能实用，比如能用通过结果搜索获得某个HTML节点的源码；lxmlC语言编码，高效，支持Xpath
 
 ### 多线程并发抓取
 单线程太慢的话，就需要多线程了，这里给个简单的线程池模板 这个程序只是简单地打印了1-10，但是可以看出是并发地。 
@@ -213,8 +257,7 @@ for url in links:
 reactor.callLater(5, reactor.stop) #5秒钟后通知reactor结束程序
 reactor.run()
 ```
- twisted人如其名，写的代码实在是太扭曲了，非正常人所能接受，虽然这个简单的例子看上去还好；每次写twisted的程序整个人都扭曲了，累得不得了，文档等于没有，必须得看源码才知道怎么整，唉不提了。
-
+ 
 * 设计一个简单的多线程抓取类
 还是觉得在urllib之类python“本土”的东东里面折腾起来更舒服。试想一下，如果有个Fetcher类，你可以这么调用 
 ```
@@ -332,6 +375,22 @@ def login(self,username,password):
     url = 'http://www.verycd.com/signin'
     self.opener.open(url,data).read()
 ```
+
+### 反爬虫手段
+×　后台对访问进行统计，如果单个IP访问超过阈值，予以封锁。
+
+这个虽然效果还不错，但是其实有两个缺陷，一个是非常容易误伤普通用户，另一个就是，IP其实不值钱，几十块钱甚至有可能买到几十万个IP。所以总体来说是比较亏的。不过针对三月份呢爬虫，这点还是非常有用的。
+
+×　后台对访问进行统计，如果单个session访问超过阈值，予以封锁。
+
+这个看起来更高级了一些，但是其实效果更差，因为session完全不值钱，重新申请一个就可以了。
+
+×　后台对访问进行统计，如果单个userAgent访问超过阈值，予以封锁。
+
+这个是大招，类似于抗生素之类的，效果出奇的好，但是杀伤力过大，误伤非常严重，使用的时候要非常小心。
+×　以上的组合
+
+
 
 
 
