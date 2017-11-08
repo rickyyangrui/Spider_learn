@@ -22,6 +22,7 @@ response = urllib2.urlopen(url)
 print response.read()
 ```
 * Post方法
+```
 import urllib
 import urllib2
 
@@ -31,6 +32,7 @@ form_data = urllib.urlencode(form)
 request = urllib2.Request(url,form_data)
 response = urllib2.urlopen(request)
 print response.read()
+```
 ## 使用代理服务器
 这在某些情况下比较有用，比如IP被封了，或者比如IP访问的次数受到限制等等。 
 ```
@@ -377,18 +379,28 @@ def login(self,username,password):
 ```
 
 ### 反爬虫手段
-×　后台对访问进行统计，如果单个IP访问超过阈值，予以封锁。
+* 后台对访问进行统计，如果单个IP访问超过阈值，予以封锁。
 
 这个虽然效果还不错，但是其实有两个缺陷，一个是非常容易误伤普通用户，另一个就是，IP其实不值钱，几十块钱甚至有可能买到几十万个IP。所以总体来说是比较亏的。不过针对三月份呢爬虫，这点还是非常有用的。
 
-×　后台对访问进行统计，如果单个session访问超过阈值，予以封锁。
+* 后台对访问进行统计，如果单个session访问超过阈值，予以封锁。
 
 这个看起来更高级了一些，但是其实效果更差，因为session完全不值钱，重新申请一个就可以了。
 
-×　后台对访问进行统计，如果单个userAgent访问超过阈值，予以封锁。
+* 后台对访问进行统计，如果单个userAgent访问超过阈值，予以封锁。
 
 这个是大招，类似于抗生素之类的，效果出奇的好，但是杀伤力过大，误伤非常严重，使用的时候要非常小心。
-×　以上的组合
+* 以上的组合
+
+### 学习爬虫的文章
+* [spider_learn1](https://gamelife1314.github.io/2017/07/04/python%E7%88%AC%E8%99%AB%E6%80%BB%E7%BB%93/)
+* [spider_learn2](http://www.zhouww.com/2017/09/14/Python-%E7%88%AC%E8%99%AB%E6%80%BB%E7%BB%93/)
+* [spider_learn3](http://blog.csdn.net/javachaoco/article/details/51398075)
+* [spider_learn4](http://chenggang.me/2017/07/28/python%E7%88%AC%E8%99%AB%E6%80%BB%E7%BB%93/  )
+* [spider_learn5](https://zhuanlan.zhihu.com/p/24982283)
+* [spider_learn6](http://wangxin123.com/2016/12/21/%E7%88%AC%E8%99%AB%E3%80%81%E5%8F%8D%E7%88%AC%E8%99%AB%E3%80%81%E5%8F%8D%E5%8F%8D%E7%88%AC%E8%99%AB/ )
+* [spider_learn7](http://blog.csdn.net/sinsa110/article/details/50441882 )
+* [spider_learn8](https://jiayi.space/post/fan-pa-chong-de-ying-dui-ce-lue  )
 
 
 
