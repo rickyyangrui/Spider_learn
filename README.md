@@ -10,6 +10,7 @@
 * [拉勾网](https://github.com/rickyyangrui/Spider_learn/tree/master/%E7%88%AC%E8%99%AB%E9%A1%B9%E7%9B%AE%E6%BA%90%E7%A0%81/lagou_spider "悬浮显示")
 * [豆瓣](https://github.com/rickyyangrui/Spider_learn/tree/master/%E7%88%AC%E8%99%AB%E9%A1%B9%E7%9B%AE%E6%BA%90%E7%A0%81/douban_spider)
 * [煎蛋](https://github.com/rickyyangrui/Spider_learn/tree/master/%E7%88%AC%E8%99%AB%E9%A1%B9%E7%9B%AE%E6%BA%90%E7%A0%81/jandan_spider)
+* [街拍](https://github.com/rickyyangrui/Spider_learn/blob/master/%E7%88%AC%E8%99%AB%E9%A1%B9%E7%9B%AE%E6%BA%90%E7%A0%81/%E8%A1%97%E6%8B%8D.py)
 
 ## 爬虫小总结
 
